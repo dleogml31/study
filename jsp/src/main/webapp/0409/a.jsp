@@ -8,6 +8,6 @@
     	학생<input type = "radio" name = "ra" value = "1" />
     	교수<input type = "radio" name = "ra" value = "2" />
     	교직원<input type = "radio" name = "ra" value = "3" />
-    	
+    	<input type="hidden" />
     	<input type = "submit" value = "이동" />
     </form>
