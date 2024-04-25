@@ -6,8 +6,7 @@ import web.bean.dto.BoardFileDTO;
 import java.util.*; 
 
 public class BoardDAO {
-
-	private Connection conn = null;
+	private static Connection conn = OracleConnection.getConnection();
 	private PreparedStatement pstmt = null;
 	private ResultSet rs = null;
 	private String sql = null;
@@ -15,7 +14,6 @@ public class BoardDAO {
 	//파일삭제
 	public void deleteOne(int boardnum , int num) {
 	      try {	//보드번호로 삭제
-	         conn = OracleConnection.getConnection();
 	         sql = "delete from boardfile where num=?";
 	         pstmt = conn.prepareStatement(sql);
 	         pstmt.setInt(1, num);
@@ -35,22 +33,22 @@ public class BoardDAO {
 	//글번호를 받아 해당 글번호 모든걸 삭제
 	public void deleteFile(int boardnum) {
 		try {
-			conn = OracleConnection.getConnection();
 			sql = "delete from boardfile where boardnum=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, boardnum);
 			pstmt.executeUpdate();
+
 		}catch(Exception e) {
-		e.printStackTrace();
+			e.printStackTrace();
 		}finally{
-		OracleConnection.close(rs, pstmt, conn);
+			OracleConnection.close(rs, pstmt, conn);
 		}
 	}
 	
 	public List<BoardFileDTO> getBoardFileList(int boardnum) {
 		List<BoardFileDTO> list = new ArrayList();
 		try {
-			conn = OracleConnection.getConnection();
+			
 			sql = "select * from boardfile where boardnum=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, boardnum);
@@ -73,7 +71,7 @@ public class BoardDAO {
 	
 	public void updateFile(int count, int boardnum) {
 		try {
-			conn = OracleConnection.getConnection();
+			
 			sql = "update board set boardfile=? where num=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, count);
@@ -90,7 +88,7 @@ public class BoardDAO {
 	
 	public void insertFile(BoardFileDTO dto) {
 		try {
-			conn = OracleConnection.getConnection();
+			
 			sql = "insert into boardfile values(boardfile_seq.nextval,?,?)";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, dto.getBoardnum());
@@ -109,7 +107,7 @@ public class BoardDAO {
 	public int maxNum() {
 		int result = 0;
 		try {
-			conn = OracleConnection.getConnection();
+			
 			pstmt = conn.prepareStatement("select count(*) from board");
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -130,7 +128,7 @@ public class BoardDAO {
 		int re_level=article.getRe_level();
 		int number=0;
 		try {
-			conn = OracleConnection.getConnection();
+			
 			pstmt = conn.prepareStatement("select max(num) from board");
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -176,7 +174,7 @@ public class BoardDAO {
 	public int getArticleCount() throws Exception {
 		int x=0;
 		try {
-			conn = OracleConnection.getConnection();
+			
 			pstmt = conn.prepareStatement("select count(*) from board");
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -193,7 +191,6 @@ public class BoardDAO {
 	public List getArticles(int start, int end)  {
 		List articleList=null;
 		try {
-			conn = OracleConnection.getConnection();
 			pstmt = conn.prepareStatement(
 					"select * from (select num,writer,email,subject,passwd,reg_date,ref,re_step,re_level,content,ip,readcount,boardfile,rownum r " +
 					"from (select * from board order by ref desc, re_step asc) order by ref desc, re_step asc ) where r >= ? and r <= ? ");
@@ -229,7 +226,6 @@ public class BoardDAO {
 	public BoardDTO getArticle(int num) {
 		BoardDTO article=null;
 		try {
-			conn = OracleConnection.getConnection();
 			pstmt = conn.prepareStatement("update board set readcount=readcount+1 where num = ?"); 
 			pstmt.setInt(1, num);
 			pstmt.executeUpdate();
@@ -266,7 +262,7 @@ public class BoardDAO {
 	public BoardDTO updateGetArticle(int num) {
 		BoardDTO article=null;
 		try {
-			conn = OracleConnection.getConnection();
+			
 			pstmt = conn.prepareStatement("select * from board where num = ?"); 
 			pstmt.setInt(1, num);
 			rs = pstmt.executeQuery();
@@ -299,7 +295,7 @@ public class BoardDAO {
 		String dbpasswd="";
 		int x=-1;
 		try {
-			conn = OracleConnection.getConnection();
+			
 			pstmt = conn.prepareStatement("select passwd from board where num = ?");
 			pstmt.setInt(1, article.getNum());
 			rs = pstmt.executeQuery();
@@ -337,7 +333,7 @@ public class BoardDAO {
 	      int boardfile = 0;
 	      List<String> fileNames = null;
 	      try {
-	         conn = OracleConnection.getConnection();
+	         
 	         pstmt = conn.prepareStatement("select boardfile from board where num = ?");
 	         pstmt.setInt(1, num);
 	         rs = pstmt.executeQuery();
@@ -370,4 +366,16 @@ public class BoardDAO {
 	      }
 	      return fileNames;
 	   }
+	
+//	
+//	public Connection dbConnect(String query, String params, String crud) throws SQLException {
+//		
+//        pstmt = conn.prepareStatement(query);
+//        String[] paramSplit = params.split(",");
+//        for(int i=0; i<paramSplit.length; i++) {
+//        	pstmt.setString(i+1, paramSplit[i]);
+//        }
+//        return conn;
+//	}
+	
 }
